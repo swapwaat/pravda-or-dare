@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#08080c">
+<title>Правда или Действие</title>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#050507;--stroke:rgba(255,255,255,.11)}
+html,body{margin:0;padding:0;min-height:100%;background:#050507;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Inter,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;overflow-x:hidden;background:radial-gradient(700px 500px at 50% -120px,rgba(10,132,255,.16),transparent 65%),radial-gradient(500px 420px at 100% 45%,rgba(255,55,95,.09),transparent 65%),#050507}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;background-image:radial-gradient(rgba(255,255,255,.12) .6px,transparent .6px);background-size:4px 4px;mask-image:linear-gradient(to bottom,black,transparent 80%)}
+button,input,select{font:inherit}button{cursor:pointer}
+.app{position:relative;z-index:1;width:100%;max-width:520px;min-height:100vh;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.header{text-align:center;padding:16px 0 25px}.logo{font-size:32px;font-weight:800;letter-spacing:-1.4px;text-shadow:0 3px 25px rgba(255,255,255,.12)}.subtitle{margin-top:6px;color:#8f8f99;font-size:14px}
+.screen{display:none;flex:1;flex-direction:column}.screen.active{display:flex}
+.mode-options,.players-list,.levels{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.mode-btn,.player-card,.level{width:100%;border:1px solid var(--stroke);border-radius:24px;padding:19px;color:#fff;text-align:left;background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.035));backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);box-shadow:0 18px 45px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.055);transition:transform .16s ease,background .16s ease,border-color .16s ease}
+.mode-btn:active,.level:active,.secondary-btn:active,.primary-btn:active,.next:active,.choice:active,.timer-btn:active{transform:scale(.975)}
+.mode-title{font-size:19px;font-weight:750;letter-spacing:-.25px}.mode-desc{margin-top:6px;color:#9999a4;font-size:13px;line-height:1.4}.players-head{margin:8px 0 3px;font-size:21px;font-weight:750;letter-spacing:-.35px}.pair-title{font-size:16px;font-weight:700;margin-bottom:10px}.player-row{display:grid;grid-template-columns:1fr 130px;gap:9px;margin-top:9px}
+.player-input,.gender-select{width:100%;border:1px solid rgba(255,255,255,.11);border-radius:15px;padding:13px;color:#fff;background:rgba(0,0,0,.25);outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}.player-input::placeholder{color:#70707b}.player-input:focus,.gender-select:focus{border-color:rgba(10,132,255,.65);box-shadow:0 0 0 3px rgba(10,132,255,.13)}.gender-select option{color:#111}
+.player-actions{display:flex;gap:10px;margin-top:15px}.secondary-btn,.primary-btn{flex:1;border:0;border-radius:17px;padding:14px;color:#fff;font-weight:700}.secondary-btn{background:rgba(255,255,255,.085);border:1px solid rgba(255,255,255,.06)}.primary-btn{background:#fff;color:#111;box-shadow:0 8px 25px rgba(255,255,255,.1)}
+.turn-badge{color:#fff;font-size:13px;font-weight:700;text-align:right;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:7px 10px;white-space:nowrap}.current-pair{color:#888894;font-size:11px;text-align:right;margin-top:5px}
+.level{padding:20px}.level-title{font-size:19px;font-weight:750;letter-spacing:-.25px}.level-desc{margin-top:6px;color:#9898a3;font-size:13px;line-height:1.4}.level-icon{float:right;font-size:25px;filter:drop-shadow(0 5px 12px rgba(255,255,255,.12))}
+.game-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.back{border:1px solid rgba(255,255,255,.07);color:#9d9da7;background:rgba(255,255,255,.055);padding:8px 12px;border-radius:13px;font-size:14px}.level-name{color:#8e8e9a;font-size:13px}
+.card{position:relative;width:100%;min-height:330px;border-radius:31px;padding:30px 24px;display:flex;flex-direction:column;justify-content:center;text-align:center;overflow:hidden;background:radial-gradient(420px 250px at 15% 0%,rgba(255,255,255,.10),transparent 65%),radial-gradient(380px 260px at 100% 100%,rgba(10,132,255,.07),transparent 65%),rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(30px) saturate(145%);-webkit-backdrop-filter:blur(30px) saturate(145%);box-shadow:0 25px 70px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07)}
+.card:after{content:"";position:absolute;inset:1px;border-radius:30px;pointer-events:none;border:1px solid rgba(255,255,255,.025)}
+.type{display:inline-flex;align-self:center;padding:7px 13px;border-radius:999px;background:rgba(255,255,255,.085);color:#bfc0c8;font-size:12px;font-weight:700;margin-bottom:22px;border:1px solid rgba(255,255,255,.07)}.question{font-size:25px;line-height:1.28;font-weight:750;letter-spacing:-.55px}
+.timer-box{margin-top:25px;display:none;flex-direction:column;align-items:center;gap:12px}.timer-box.visible{display:flex}.timer{min-width:145px;padding:13px 22px;border-radius:18px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.09);font-size:32px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:1px}.timer.finished{color:#30d158}.timer-buttons{display:flex;gap:8px;width:100%;justify-content:center}.timer-btn{border:0;border-radius:14px;padding:11px 15px;background:rgba(255,255,255,.09);color:#fff;font-weight:650}.timer-btn.primary{background:#fff;color:#111}
+.actions{display:flex;gap:10px;margin-top:16px}.choice{flex:1;min-height:59px;border-radius:19px;font-weight:750;font-size:16px;transition:transform .12s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}.truth{background:linear-gradient(145deg,rgba(10,132,255,.24),rgba(10,132,255,.12));color:#c7dcff;border:1px solid rgba(10,132,255,.3)}.dare{background:linear-gradient(145deg,rgba(255,55,95,.23),rgba(255,55,95,.11));color:#ffc2cf;border:1px solid rgba(255,55,95,.28)}
+.next{width:100%;min-height:59px;margin-top:11px;border:0;border-radius:19px;background:#fff;color:#111;font-weight:800;font-size:16px;box-shadow:0 12px 30px rgba(0,0,0,.22)}.hint{text-align:center;color:#62626d;font-size:12px;margin-top:14px}
+@media(max-width:360px){.app{padding-left:12px;padding-right:12px}.question{font-size:21px}.card{min-height:290px;padding:25px 18px}.player-row{grid-template-columns:1fr 112px}}
+</style>>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="logo">Правда или Действие</div>
+    <div class="subtitle">Выбирай карточку и не отступай 😈</div>
+  </div>
+
+  <!-- MODE -->
+  <section id="modeScreen" class="screen active">
+    <div class="players-head">Как будем играть?</div>
+    <div class="mode-options">
+      <button class="mode-btn" onclick="chooseMode('single')">
+        <div class="mode-title">👫 Одна пара</div>
+        <div class="mode-desc">Два игрока, ходы переходят от одного к другому.</div>
+      </button>
+      <button class="mode-btn" onclick="chooseMode('multi')">
+        <div class="mode-title">👥 Несколько пар</div>
+        <div class="mode-desc">Добавь несколько пар — приложение будет отслеживать общий порядок ходов.</div>
+      </button>
+    </div>
+  </section>
+
+  <!-- PLAYERS -->
+  <section id="playersScreen" class="screen">
+    <div class="game-top"><button class="back" onclick="showModeScreen()">← Назад</button><div></div></div>
+    <div class="players-head">Игроки</div>
+    <div id="playersList" class="players-list"></div>
+    <div class="player-actions">
+      <button id="addPairBtn" class="secondary-btn" onclick="addPair()">+ Добавить пару</button>
+      <button class="primary-btn" onclick="confirmPlayers()">Продолжить →</button>
+    </div>
+  </section>
+
+  <!-- LEVELS -->
+  <section id="levelsScreen" class="screen">
+
+    <div class="levels">
+
+      <button class="level" onclick="startGame(0)">
+        <span class="level-icon">🎲</span>
+        <div class="level-title">Классический</div>
+        <div class="level-desc">Лёгкие вопросы и забавные задания.</div>
+      </button>
+
+      <button class="level" onclick="startGame(1)">
+        <span class="level-icon">😉</span>
+        <div class="level-title">Флирт</div>
+        <div class="level-desc">Больше флирта, смелости и личных вопросов.</div>
+      </button>
+
+      <button class="level" onclick="startGame(2)">
+        <span class="level-icon">🔥</span>
+        <div class="level-title">18+</div>
+        <div class="level-desc">Для взрослых. Максимум интимности без лишних рамок.</div>
+      </button>
+
+      <button class="level" onclick="startGame(3)">
+        <span class="level-icon">😈</span>
+        <div class="level-title">Без рамок</div>
+        <div class="level-desc">Самые смелые вопросы, признания и задания.</div>
+      </button>
+
+    </div>
+
+  </section>
+
+  <!-- GAME -->
+  <section id="gameScreen" class="screen">
+
+    <div class="game-top">
+      <button class="back" onclick="showLevels()">← Уровни</button>
+      <div>
+        <div id="turnBadge" class="turn-badge">Ход: —</div>
+        <div id="currentPair" class="current-pair"></div>
+        <div id="levelName" class="level-name"></div>
+      </div>
+    </div>
+
+    <div class="card">
+
+      <div id="typeLabel" class="type">ПРАВДА</div>
+
+      <div id="question" class="question">
+        Выбери «Правда» или «Действие»
+      </div>
+
+      <div id="timerBox" class="timer-box">
+
+        <div id="timer" class="timer">00:00</div>
+
+        <div class="timer-buttons">
+          <button id="timerStart" class="timer-btn primary" onclick="toggleTimer()">
+            ▶ Запустить
+          </button>
+
+          <button class="timer-btn" onclick="resetTimer()">
+            ↻ Сбросить
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="actions">
+      <button class="choice truth" onclick="showCard('truth')">
+        Правда
+      </button>
+
+      <button class="choice dare" onclick="showCard('dare')">
+        Действие
+      </button>
+    </div>
+
+    <button class="next" onclick="nextCard()">
+      Следующая карточка →
+    </button>
+
+    <div class="hint">
+      Свайп влево — следующая карточка · вправо — назад
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+const decks = [
+
+  /* =========================================================
+     КЛАССИЧЕСКИЙ
+  ========================================================= */
+  {
+    name: "Классический",
+
+    truth: [
+      "Какой твой самый неловкий момент?",
+      "Какую свою привычку ты хотел(а) бы изменить?",
+      "Кто знает тебя лучше всех?",
+      "Какой самый странный сон ты помнишь?",
+      "Чего ты боишься больше всего?",
+      "Какой поступок ты до сих пор вспоминаешь с улыбкой?",
+      "Какой твой самый бесполезный талант?",
+      "Какую ложь ты говорил(а) чаще всего?",
+      "Что тебя моментально раздражает?",
+      "Какой комплимент тебе запомнился?",
+      "Какое первое впечатление ты обычно производишь?",
+      "Что ты никогда не сделал(а) бы за деньги?",
+      "Какой твой самый смешной секрет?",
+      "Кем ты хотел(а) стать в детстве?",
+      "Что тебе сложнее всего говорить людям?",
+      "Какая песня лучше всего описывает твою жизнь?",
+      "Какое качество ты больше всего ценишь в людях?",
+      "Какой день своей жизни ты хотел(а) бы повторить?",
+      "Что ты делаешь, когда никто не видит?",
+      "Какой самый безумный поступок ты совершал(а)?"
+    ],
+
+    dare: [
+      "Сделай смешное селфи.",
+      "Изобрази человека слева от себя.",
+      "Спой припев любой песни.",
+      "Сделай 10 приседаний.",
+      "Говори шёпотом до следующего раунда.",
+      "Станцуй 20 секунд.",
+      "Сделай максимально серьёзное лицо на 30 секунд.",
+      "Покажи последнее фото в галерее.",
+      "Изобрази любимого персонажа.",
+      "Скажи каждому игроку по одному комплименту.",
+      "Сделай смешную походку до двери и обратно.",
+      "Расскажи анекдот.",
+      "Изобрази животное, пока остальные угадывают.",
+      "Поменяйся местом с любым игроком.",
+      "Сделай 15 прыжков.",
+      "Позвони другу и скажи ему что-нибудь неожиданное.",
+      "Говори рифмами до следующего хода.",
+      "Поставь смешное выражение лица и держи его 20 секунд.",
+      "Придумай рекламный слоган для себя.",
+      "Сделай драматичное признание в любви стулу."
+    ]
+  },
+
+  /* =========================================================
+     ФЛИРТ
+  ========================================================= */
+  {
+    name: "Флирт",
+
+    truth: [
+      "Кто здесь тебе кажется самым привлекательным?",
+      "Кто из присутствующих мог бы легко заставить тебя покраснеть?",
+      "Какой тип внешности тебя привлекает?",
+      "Что первое ты замечаешь в человеке?",
+      "Какой самый смелый флирт ты получал(а)?",
+      "Кому ты когда-нибудь хотел(а) написать, но не решился(лась)?",
+      "Какой комплимент действует на тебя сильнее всего?",
+      "Что для тебя создаёт химию между двумя людьми?",
+      "Ты чаще делаешь первый шаг или ждёшь его?",
+      "Как понять, что человек тебе действительно нравится?",
+      "Какой взгляд ты считаешь самым соблазнительным?",
+      "Какой самый запоминающийся поцелуй у тебя был?",
+      "С кем здесь тебе было бы интересно провести вечер вдвоём?",
+      "Что в человеке может моментально тебя зацепить?",
+      "Какая черта характера делает человека сексуально привлекательным?",
+      "Ты когда-нибудь флиртовал(а) с человеком, который был явно не твоего типа?",
+      "Какой самый дерзкий комплимент ты говорил(а)?",
+      "Какое свидание ты считаешь идеальным?",
+      "Есть ли здесь человек, которого ты хотел(а) бы узнать ближе?",
+      "Что сильнее работает на тебя: взгляд, голос или прикосновение?"
+    ],
+
+    dare: [
+      "Смотри выбранному человеку в глаза 20 секунд.",
+      "Скажи выбранному человеку очень личный комплимент.",
+      "Сделай соблазнительный взгляд выбранному человеку.",
+      "Отправь человеку из контактов сообщение: «Ты сегодня выглядишь особенно хорошо 😏».",
+      "Сядь рядом с выбранным человеком до следующего раунда.",
+      "Скажи выбранному человеку на ухо комплимент.",
+      "Сделай флиртующий танец 20 секунд.",
+      "Попроси выбранного человека назвать твою самую привлекательную черту.",
+      "Скажи человеку напротив, что первое ты в нём заметил(а).",
+      "Проведи 30 секунд, глядя выбранному человеку в глаза.",
+      "Сделай выбранному человеку комплимент, который обычно боишься говорить.",
+      "Изобрази, как ты флиртуешь с человеком своей мечты.",
+      "Скажи выбранному человеку, куда бы ты пригласил(а) его на свидание.",
+      "Выбери человека и прошепчи ему что-нибудь загадочное.",
+      "Сделай максимально уверенный комплимент человеку справа.",
+      "Попроси любого игрока оценить твою улыбку от 1 до 10.",
+      "Скажи выбранному человеку: «Ты меня немного смущаешь».",
+      "Сделай романтический взгляд в камеру телефона.",
+      "Положи руку на плечо выбранного человека на 15 секунд.",
+      "Скажи выбранному человеку три вещи, которые тебе в нём нравятся."
+    ]
+  },
+
+  /* =========================================================
+     18+
+  ========================================================= */
+  {
+    name: "18+",
+
+    truth: [
+      "Кто здесь вызывает у тебя самое сильное физическое влечение?",
+      "Какая твоя самая сокровенная романтическая фантазия?",
+      "Что для тебя создаёт сексуальное напряжение между людьми?",
+      "Есть ли человек здесь, с которым ты хотел(а) бы остаться наедине?",
+      "Какое желание тебе было бы сложнее всего сказать человеку прямо?",
+      "Что сильнее всего заставляет тебя хотеть человека?",
+      "Какой самый смелый шаг в отношениях ты когда-либо делал(а)?",
+      "Какая фантазия кажется тебе слишком смелой, чтобы рассказать её всем?",
+      "Что для тебя важнее: эмоциональная связь или сильное физическое притяжение?",
+      "Какой поцелуй тебе запомнился больше всего?",
+      "Какая часть тела человека может особенно сильно привлекать твоё внимание?",
+      "Что может мгновенно создать между двумя людьми напряжение?",
+      "Тебе нравится, когда первый шаг делает партнёр?",
+      "Какой самый дерзкий намёк ты когда-либо делал(а)?",
+      "Есть ли у тебя желание, о котором почти никто не знает?",
+      "Какой комплимент от привлекательного человека действует на тебя сильнее всего?",
+      "Что для тебя считается настоящим соблазнением?",
+      "Ты когда-нибудь специально создавал(а) ситуацию, чтобы остаться с кем-то наедине?",
+      "Какая атмосфера для тебя самая романтичная и интимная?",
+      "Что может заставить тебя потерять голову от человека?",
+      "Каким должен быть идеальный вечер вдвоём?",
+      "Что тебе сложнее: признаться в чувствах или признаться в желании?",
+      "Какой взгляд способен тебя смутить?",
+      "Есть ли здесь человек, которого ты хотел(а) бы поцеловать?",
+      "Что для тебя важнее в интимной близости: доверие, страсть или игра?"
+    ],
+
+    dare: [
+      {
+        text: "Смотри выбранному человеку в глаза 45 секунд.",
+        seconds: 45
+      },
+      {
+        text: "Сделай максимально соблазнительный танец 45 секунд.",
+        seconds: 45
+      },
+      "Скажи выбранному человеку на ухо очень смелый комплимент.",
+      "Сядь рядом с выбранным человеком до конца следующего раунда.",
+      {
+        text: "Проведи выбранному человеку минутный массаж плеч.",
+        seconds: 60
+      },
+      "Посмотри выбранному человеку в глаза и скажи: «Ты меня очень привлекаешь».",
+      "Сделай выбранному человеку очень личный комплимент.",
+      {
+        text: "Проведи минуту рядом с выбранным человеком, разговаривая только шёпотом.",
+        seconds: 60
+      },
+      {
+        text: "Станцуй один медленный танец, выбрав человека, для которого ты его танцуешь.",
+        seconds: 60
+      },
+      "Выбери человека и скажи ему, что именно в нём тебя привлекает.",
+      "Попроси выбранного человека назвать твою самую привлекательную черту.",
+      {
+        text: "Смотри выбранному человеку в глаза и улыбайся 30 секунд.",
+        seconds: 30
+      },
+      "Скажи человеку напротив, какое первое впечатление он на тебя произвёл.",
+      "Выбери человека и скажи ему самый смелый комплимент, который можешь придумать.",
+      {
+        text: "Сядь напротив выбранного человека и молча смотри ему в глаза 30 секунд.",
+        seconds: 30
+      },
+      "Скажи выбранному человеку, куда бы ты хотел(а) пригласить его на романтическое свидание.",
+      "Позволь выбранному человеку выбрать тебе новый никнейм до конца игры.",
+      {
+        text: "Сделай медленный соблазнительный танец 30 секунд.",
+        seconds: 30
+      },
+      "Выбери человека и скажи ему три вещи, которые тебе в нём нравятся.",
+      "Попроси любого игрока сделать тебе самый искренний комплимент.",
+      "Скажи выбранному человеку: «Если бы мы были вдвоём сейчас, я бы хотел(а)…» и закончи фразу романтическим желанием.",
+      {
+        text: "Проведи 90 секунд рядом с выбранным человеком, не используя телефоны.",
+        seconds: 90
+      },
+      "Скажи выбранному человеку, какой его взгляд тебе нравится больше всего.",
+      "Выбери человека и предложи ему придумать ваше идеальное свидание.",
+      {
+        text: "Сделай медленный танец лицом к выбранному человеку 45 секунд.",
+        seconds: 45
+      }
+    ]
+  },
+
+  /* =========================================================
+     БЕЗ РАМОК
+  ========================================================= */
+  {
+    name: "Без рамок",
+
+    truth: [
+      "Кто здесь тебя физически привлекает сильнее всего?",
+      "Какое на тебе нижнее белье?",
+      "Какая твоя самая смелая романтическая фантазия?",
+      "Какое желание ты никогда не говорил(а) вслух?",
+      "Сколько раз тебе нужно в неделю?",
+      "Что тебя сильнее всего возбуждает во мне?",
+      "В какой одежде ты выглядишь наиболее сексуально?",
+      "Какой самый смелый флирт ты когда-либо устраивал(а)?",
+      "Предпочитаешь доминировать или подчиняться?",
+      "Что для тебя является самым сильным признаком сексуального притяжения?",
+      "Есть ли человек, с которым тебе было бы трудно оставаться наедине?",
+      "Что тебе нравится больше: когда тебя соблазняют или когда соблазняешь ты?",
+      "Какая фантазия кажется тебе слишком дерзкой для обычного разговора?",
+      "Какой самый сильный момент притяжения ты когда-либо чувствовал(а)?",
+      "Что человек может сделать одним взглядом, чтобы ты потерял(а) самообладание?",
+      "Какой тип прикосновений кажется тебе самым интимным?",
+      "Какой комплимент способен моментально поднять твоё желание?",
+      "Умеешь танцевать стриптиз и как хорошо?", 
+      "Самый лучший и худший поцелуй в жизни?",
+      "Какая атмосфера делает тебя особенно раскрепощённым(ой)?",
+      "Тебя когда-нибудь заставали за неприличными вещами?",
+      "Как легче всего тебя соблазнить?",
+      "Что для тебя является границей между флиртом и настоящим желанием?",
+      "Какое желание ты бы исполнил(а), если бы никто никогда об этом не узнал?",
+      "Самое вызывающее нижнее белье, что у тебя есть?",
+      "Приходилось ли случайно видеть секс со стороны?",
+      "Что тебя привлекает сильнее: уверенность, нежность или загадочность?",
+      "Как часто смотришь порно?",
+      "Твои самые эрогенные точки?",
+      "Что ты хотел(а) бы попробовать в романтических отношениях, но пока не решался(лась)?",
+      "Что думаешь про оральный секс?",
+      "В каких местах квартиры, кроме постели, был секс?",
+      "Что думал о сексе в детстве?",
+      "Какая у тебя самая любимая секс-поза?",
+      "Что важно знать о сексе?",
+      "Какие грязные и пошлые словечки у тебя любимые?",
+      "Твои самые эрогенные точки?",
+      "Самая неприличная твоя эротическая фантазия?"
+    ],
+
+    dare: [
+      {
+        text: "Разрешить себя пощекотать полминуты.",
+        seconds: 30
+      },
+      {
+        text: "Сделай максимально соблазнительный танец 60 секунд.",
+        seconds: 60
+      },
+      "Разрешить сжать твою грудь.",
+      "Поцеловать любимую часть тела на другом игроке.",
+      {
+        text: "Проведи выбранному человеку двухминутный массаж плеч.",
+        seconds: 120
+      },
+      "Посмотри выбранному человеку в глаза и скажи: «Ты опасно хорошо на меня влияешь».",
+      {
+        text: "Сексуально домогаться до кого-либо на протяжении двух минут.",
+        seconds: 120
+      },
+      "Выбери человека и расскажи ему, каким было бы ваше идеальное свидание.",
+      "Скажи выбранному человеку, какая его черта кажется тебе самой соблазнительной.",
+      {
+        text: "Сделай медленный танец для выбранного человека 60 секунд.",
+        seconds: 60
+      },
+      "Облизать соски другого игрока.",
+      "До конца игры называть одного из игроков «Моя госпожа» или «Мой господин».",
+      {
+        text: "Делать минет/кунилингус на протяжении 5 минут",
+        seconds: 300
+      },
+      "",
+      "Скажи выбранному человеку: «Если бы мы сейчас были вдвоём…» и закончи фразу.",
+      {
+        text: "Целоваться 90 секунд взасос.",
+        seconds: 90
+      },
+      "Засунуть руку в штаны другому игроку.",
+      "Сосать палец максимально эротично.",
+      {
+        text: "Можешь делать с человеком всё что угодно на протяжении 5 минут",
+        seconds: 300
+      },
+      "Показать какое на тебе нижнее белье(для этого придётся полностью раздеться)",
+      "Станцевать горячий тверк под музыку(для этого придётся снять штаны или юбку)",
+      {
+        text: "Эротично простонать десять секунд.",
+        seconds: 10
+      },
+      "Заняться сексом немедленно.",
+      "Все игроки снимают полностью одежду и дальше играют голыми.",
+      {
+        text: "Шлепать себя по попе и говорить непристойности 45 секунд.",
+        seconds: 45
+      },
+      "Сексуально облизать губы.",
+      "Флиртовать с другим игроком минуту.",
+      {
+        text: "Разрешить погладить внутреннюю часть своего бедра на 1 минуту.",
+        seconds: 60
+      },
+      "Рассказать, как ты займешься сексом с кем-то и подробно.",
+      "Показать свою обнаженную грудь."
+    ]
+  }
+
+];
+
+
+/* =========================================================
+   СОСТОЯНИЕ ИГРЫ
+========================================================= */
+
+let currentLevel = 0;
+let currentType = null;
+let currentCard = null;
+let gameMode = null;
+let pairs = [];
+let players = [];
+let currentPlayerIndex = 0;
+
+let used = {
+  truth: [],
+  dare: []
+};
+
+let timerInterval = null;
+let timerSeconds = 0;
+let timerRemaining = 0;
+let timerEnd = 0;
+let timerRunning = false;
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const modeScreen = document.getElementById("modeScreen");
+const playersScreen = document.getElementById("playersScreen");
+const levelsScreen = document.getElementById("levelsScreen");
+const playersList = document.getElementById("playersList");
+const addPairBtn = document.getElementById("addPairBtn");
+const turnBadge = document.getElementById("turnBadge");
+const currentPair = document.getElementById("currentPair");
+const gameScreen = document.getElementById("gameScreen");
+const levelName = document.getElementById("levelName");
+const typeLabel = document.getElementById("typeLabel");
+const question = document.getElementById("question");
+
+const timerBox = document.getElementById("timerBox");
+const timer = document.getElementById("timer");
+const timerStart = document.getElementById("timerStart");
+
+
+/* =========================================================
+   ИГРА
+========================================================= */
+
+function chooseMode(mode) {
+  gameMode = mode;
+  pairs = mode === "single" ? [{ players: [
+    { name: "Игрок 1", gender: "male" },
+    { name: "Игрок 2", gender: "female" }
+  ] }] : [{ players: [
+    { name: "Игрок 1", gender: "male" },
+    { name: "Игрок 2", gender: "female" }
+  ] }];
+  showPlayersScreen();
+}
+
+function showModeScreen() {
+  playersScreen.classList.remove("active");
+  levelsScreen.classList.remove("active");
+  gameScreen.classList.remove("active");
+  modeScreen.classList.add("active");
+}
+
+function showPlayersScreen() {
+  modeScreen.classList.remove("active");
+  levelsScreen.classList.remove("active");
+  gameScreen.classList.remove("active");
+  playersScreen.classList.add("active");
+  renderPlayers();
+}
+
+function renderPlayers() {
+  playersList.innerHTML = pairs.map((pair, pi) => `
+    <div class="player-card">
+      <div class="pair-title">Пара ${pi + 1}</div>
+      ${pair.players.map((player, pj) => `
+        <div class="player-row">
+          <input class="player-input" value="${escapeHtml(player.name)}" placeholder="Имя" onchange="savePlayerName(${pi},${pj},this.value)">
+          <select class="gender-select" onchange="savePlayerGender(${pi},${pj},this.value)">
+            <option value="male" ${player.gender === "male" ? "selected" : ""}>Мужчина</option>
+            <option value="female" ${player.gender === "female" ? "selected" : ""}>Женщина</option>
+          </select>
+        </div>`).join("")}
+    </div>`).join("");
+  addPairBtn.style.display = gameMode === "multi" && pairs.length < 6 ? "block" : "none";
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+}
+
+function savePlayerName(pi, pj, value) { pairs[pi].players[pj].name = value.trim() || `Игрок ${pj + 1}`; }
+function savePlayerGender(pi, pj, value) { pairs[pi].players[pj].gender = value; }
+
+function addPair() {
+  if (gameMode !== "multi" || pairs.length >= 6) return;
+  const n = pairs.length * 2 + 1;
+  pairs.push({ players: [
+    { name: `Игрок ${n}`, gender: "male" },
+    { name: `Игрок ${n + 1}`, gender: "female" }
+  ]});
+  renderPlayers();
+}
+
+function confirmPlayers() {
+  players = pairs.flatMap((pair, pi) => pair.players.map((player, pj) => ({
+    ...player, pairIndex: pi, playerIndex: pj,
+    name: player.name.trim() || `Игрок ${pi * 2 + pj + 1}`
+  })));
+  if (players.length < 2) return;
+  currentPlayerIndex = 0;
+  playersScreen.classList.remove("active");
+  levelsScreen.classList.add("active");
+}
+
+function updateTurnDisplay() {
+  if (!players.length) { turnBadge.textContent = "Ход: —"; currentPair.textContent = ""; return; }
+  const player = players[currentPlayerIndex];
+  turnBadge.textContent = `Ход: ${player.name}`;
+  currentPair.textContent = gameMode === "multi" ? `Пара ${player.pairIndex + 1} · ${player.gender === "male" ? "Мужчина" : "Женщина"}` : (player.gender === "male" ? "Мужчина" : "Женщина");
+}
+
+function startGame(level) {
+  currentLevel = level;
+  used = { truth: [], dare: [] };
+  levelsScreen.classList.remove("active");
+  gameScreen.classList.add("active");
+  levelName.textContent = decks[level].name;
+  currentPlayerIndex = 0;
+  updateTurnDisplay();
+  resetCurrentCard();
+  question.textContent = "Выбери «Правда» или «Действие»";
+  typeLabel.textContent = "ВЫБЕРИ КАРТОЧКУ";
+}
+
+function showLevels() {
+  stopTimer();
+  gameScreen.classList.remove("active");
+  levelsScreen.classList.add("active");
+}
+
+
+function resetCurrentCard() {
+  stopTimer();
+
+  currentCard = null;
+  currentType = null;
+
+  timerBox.classList.remove("visible");
+  timer.textContent = "00:00";
+  timer.classList.remove("finished");
+  timerStart.textContent = "▶ Запустить";
+}
+
+
+function getRandomCard(type) {
+  const deck = decks[currentLevel][type];
+
+  if (used[type].length >= deck.length) {
+    used[type] = [];
+  }
+
+  let available = [];
+
+  for (let i = 0; i < deck.length; i++) {
+    if (!used[type].includes(i)) {
+      available.push(i);
+    }
+  }
+
+  const index = available[Math.floor(Math.random() * available.length)];
+
+  used[type].push(index);
+
+  return deck[index];
+}
+
+
+function showCard(type) {
+  stopTimer();
+
+  currentType = type;
+  currentCard = getRandomCard(type);
+
+  const isTruth = type === "truth";
+
+  typeLabel.textContent = isTruth ? "ПРАВДА" : "ДЕЙСТВИЕ";
+
+  if (isTruth) {
+    typeLabel.style.color = "#b9ccff";
+  } else {
+    typeLabel.style.color = "#ffb0d0";
+  }
+
+  if (typeof currentCard === "string") {
+    question.textContent = currentCard;
+
+    timerBox.classList.remove("visible");
+    timerSeconds = 0;
+    timerRemaining = 0;
+    return;
+  }
+
+  question.textContent = currentCard.text;
+
+  if (currentCard.seconds) {
+    timerSeconds = currentCard.seconds;
+    timerRemaining = currentCard.seconds;
+
+    timerBox.classList.add("visible");
+    timer.classList.remove("finished");
+
+    updateTimerDisplay();
+    timerStart.textContent = "▶ Запустить";
+  } else {
+    timerBox.classList.remove("visible");
+  }
+}
+
+
+function nextCard() {
+  if (!players.length) {
+    showCard(Math.random() < 0.5 ? "truth" : "dare");
+    return;
+  }
+  currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+  updateTurnDisplay();
+  showCard(Math.random() < 0.5 ? "truth" : "dare");
+}
+
+/* =========================================================
+   ТАЙМЕР
+========================================================= */
+
+function formatTime(seconds) {
+  seconds = Math.max(0, Math.ceil(seconds));
+
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  return (
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(secs).padStart(2, "0")
+  );
+}
+
+
+function updateTimerDisplay() {
+  timer.textContent = formatTime(timerRemaining);
+}
+
+
+function toggleTimer() {
+  if (!currentCard || !currentCard.seconds) return;
+
+  if (timerRunning) {
+    pauseTimer();
+  } else {
+    startTimer();
+  }
+}
+
+
+function startTimer() {
+  if (!currentCard || !currentCard.seconds) return;
+
+  if (timerRemaining <= 0) {
+    timerRemaining = timerSeconds;
+  }
+
+  timerRunning = true;
+
+  timerEnd = Date.now() + timerRemaining * 1000;
+
+  timerStart.textContent = "⏸ Пауза";
+
+  clearInterval(timerInterval);
+
+  timerInterval = setInterval(updateRunningTimer, 100);
+  updateRunningTimer();
+}
+
+
+function updateRunningTimer() {
+  if (!timerRunning) return;
+
+  const remainingMs = timerEnd - Date.now();
+
+  if (remainingMs <= 0) {
+    timerRemaining = 0;
+    updateTimerDisplay();
+
+    timerRunning = false;
+    clearInterval(timerInterval);
+    timerInterval = null;
+
+    timer.classList.add("finished");
+    timerStart.textContent = "✓ Время вышло";
+
+    return;
+  }
+
+  timerRemaining = remainingMs / 1000;
+  updateTimerDisplay();
+}
+
+
+function pauseTimer() {
+  if (!timerRunning) return;
+
+  const remainingMs = Math.max(0, timerEnd - Date.now());
+
+  timerRemaining = remainingMs / 1000;
+
+  timerRunning = false;
+
+  clearInterval(timerInterval);
+  timerInterval = null;
+
+  timerStart.textContent = "▶ Продолжить";
+
+  updateTimerDisplay();
+}
+
+
+function stopTimer() {
+  timerRunning = false;
+
+  clearInterval(timerInterval);
+  timerInterval = null;
+
+  timerRemaining = 0;
+  timerEnd = 0;
+}
+
+
+function resetTimer() {
+  if (!currentCard || !currentCard.seconds) return;
+
+  stopTimer();
+
+  timerRemaining = timerSeconds;
+
+  timer.classList.remove("finished");
+
+  timerStart.textContent = "▶ Запустить";
+
+  updateTimerDisplay();
+}
+
+
+/* =========================================================
+   СВАЙПЫ
+========================================================= */
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+document.addEventListener("touchstart", function(e) {
+  if (!gameScreen.classList.contains("active")) return;
+
+  const touch = e.changedTouches[0];
+
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+}, { passive: true });
+
+
+document.addEventListener("touchend", function(e) {
+  if (!gameScreen.classList.contains("active")) return;
+
+  const touch = e.changedTouches[0];
+
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
+
+  if (Math.abs(deltaX) < 70) return;
+  if (Math.abs(deltaX) < Math.abs(deltaY)) return;
+
+  if (deltaX < 0) {
+    nextCard();
+  } else {
+    showLevels();
+  }
+}, { passive: true });
+
+
+/* =========================================================
+   КЛАВИАТУРА
+========================================================= */
+
+document.addEventListener("keydown", function(e) {
+  if (!gameScreen.classList.contains("active")) return;
+
+  if (e.key === "ArrowLeft") {
+    showLevels();
+  }
+
+  if (e.key === "ArrowRight") {
+    nextCard();
+  }
+
+  if (e.key === " " && currentCard && currentCard.seconds) {
+    e.preventDefault();
+    toggleTimer();
+  }
+});
+
+</script>
+
+</body>
+</html>
